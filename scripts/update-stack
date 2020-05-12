@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source ./scripts/goodies
+
+# validate user input
+if [[ $# -ne 1 ]]; then
+  printUpdateStackHelp
+  exit 1
+fi
+
+aws --profile sideprojects \
+    cloudformation update-stack \
+    --stack-name serverless-scopa-$1 \
+    --template-body file://infrastructure/stack.yml \
+    --parameters file://infrastructure/parameters-$1.json \
+    --region ap-southeast-2 \
+    --capabilities CAPABILITY_IAM

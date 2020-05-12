@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+source ./scripts/goodies
+
+# validate user input
+if [[ $# -ne 2 ]]; then
+  printSimonSaysHelp
+  exit 1
+fi
+
+./scripts/$1 $2

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+function printCreateStackHelp() {
+  echo "#########################################"
+  echo "#                                       #"
+  echo "#   Usage: ./create-stack [test|prod]   #"
+  echo "#                                       #"
+  echo "#########################################"
+}
+
+function printDeleteStackHelp() {
+  echo "#########################################"
+  echo "#                                       #"
+  echo "#   Usage: ./delete-stack [test|prod]   #"
+  echo "#                                       #"
+  echo "#########################################"
+}
+
+function printUpdateStackHelp() {
+  echo "#########################################"
+  echo "#                                       #"
+  echo "#   Usage: ./update-stack [test|prod]   #"
+  echo "#                                       #"
+  echo "#########################################"
+}
+
+function printSimonSaysHelp() {
+  echo "################################################################################"
+  echo "#                                                                              #"
+  echo "#   Usage: ./simon-says [create-stack|update-stack|delete-stack] [test|prod]   #"
+  echo "#                                                                              #"
+  echo "################################################################################"
+}

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+source ./scripts/goodies
+
+# validate user input
+if [[ $# -ne 1 ]]; then
+  printDeleteStackHelp
+  exit 1
+fi
+
+aws --profile sideprojects \
+    cloudformation delete-stack \
+    --stack-name serverless-scopa-$1 \
