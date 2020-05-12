@@ -1,9 +1,43 @@
 Parameters:
   S3BucketName:
     Type: String
+  LambdaRoleName:
+    Type: String
 
 Resources:
   S3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
       BucketName: !Ref S3BucketName
+  LambdaFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Ref LambdaRoleName
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+            Effect: Allow
+      Policies:
+        - PolicyName: Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource: "arn:aws:logs:*:*:*"
+                Action:
+                  - "logs:*"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "lambda:InvokeFunction"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "dynamodb:*"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "s3:*"
