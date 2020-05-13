@@ -7,6 +7,15 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
+# empty bucket(s)
+aws --profile sideprojects s3 rm s3://serverless-scopa-$1/ --recursive
+
+# remove stack
 aws --profile sideprojects \
     cloudformation delete-stack \
     --stack-name serverless-scopa-$1 \
+
+# remove stack
+aws --profile sideprojects \
+    cloudformation delete-stack \
+    --stack-name serverless-scopa-$1-lambda \

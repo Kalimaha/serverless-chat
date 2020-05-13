@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+(cd ../functions/retrieve-potatoes/ && ./build_and_deploy)

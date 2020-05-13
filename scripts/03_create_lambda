@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source ./goodies
+
+# validate user input
+if [[ $# -ne 1 ]]; then
+  printCreateStackHelp
+  exit 1
+fi
+
+aws --profile sideprojects \
+    cloudformation create-stack \
+    --stack-name serverless-scopa-$1-lambda \
+    --template-body file://../infrastructure/lambda/stack.yml \
+    --parameters file://../infrastructure/lambda/parameters-$1.json \
+    --region ap-southeast-2 \
+    --capabilities CAPABILITY_NAMED_IAM

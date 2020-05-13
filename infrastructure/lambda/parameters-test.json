@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "S3BucketName",
+    "ParameterValue": "serverless-scopa-test"
+  },
+  {
+    "ParameterKey": "LambdaRoleName",
+    "ParameterValue": "lambda-role-test"
+  }
+]

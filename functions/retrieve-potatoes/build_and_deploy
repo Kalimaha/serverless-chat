@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# compile Go
+GOARCH=amd64 GOOS=linux go build -o retrieve-potatoes
+
+# zip executable
+zip retrieve-potatoes.zip retrieve-potatoes
+
+# remove executable
+rm retrieve-potatoes
+
+# upload zip to S3
+aws --profile sideprojects s3 cp retrieve-potatoes.zip s3://serverless-scopa-test/
