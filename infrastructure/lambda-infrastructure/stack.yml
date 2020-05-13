@@ -6,7 +6,46 @@ Parameters:
 
 Resources:
 
-  S3Bucket:
-    Type: "AWS::S3::Bucket"
+  LambdaRetrievePotatoes:
+    Type: AWS::Lambda::Function
     Properties:
-      BucketName: !Ref S3BucketName
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: "retrieve-potatoes.zip"
+      FunctionName: "RetrievePotatoes"
+      Handler: "retrieve-potatoes"
+      MemorySize: 128
+      Role: !GetAtt [ LambdaFunctionRole, Arn ]
+      Runtime: "go1.x"
+
+  LambdaFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+            Effect: Allow
+      Policies:
+        - PolicyName: Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource: "arn:aws:logs:*:*:*"
+                Action:
+                  - "logs:*"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "lambda:InvokeFunction"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "dynamodb:*"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "s3:*"

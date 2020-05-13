@@ -13,9 +13,9 @@ aws --profile sideprojects s3 rm s3://serverless-scopa-$1/ --recursive
 # remove stack
 aws --profile sideprojects \
     cloudformation delete-stack \
-    --stack-name serverless-scopa-$1 \
+    --stack-name lambda-repository-$1-stack \
 
 # remove stack
 aws --profile sideprojects \
     cloudformation delete-stack \
-    --stack-name serverless-scopa-$1-lambda \
+    --stack-name lambda-infrastructure-$1-stack \
