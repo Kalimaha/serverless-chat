@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "S3BucketName",
-    "ParameterValue": "serverless-scopa-test"
+    "ParameterValue": "geobricks-serverless-chat-test"
   },
   {
     "ParameterKey": "LambdaRoleName",

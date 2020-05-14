@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
-)
+import "github.com/aws/aws-lambda-go/lambda"
 
 type Request struct {
 	RequestId float64 `json:"requestId"`
@@ -15,9 +12,9 @@ type Response struct {
 }
 
 func Handler(request Request) (Response, error) {
-	return Response{
+	return Response {
 		ResponseId: request.RequestId,
-		Message:    fmt.Sprintf("Hallo, world!"),
+		Message:    "Hallo, world!",
 	}, nil
 }
 
