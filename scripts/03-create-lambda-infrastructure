@@ -2,7 +2,7 @@
 source ../config/settings
 
 stackStatus() {
-  aws --profile sideprojects cloudformation describe-stacks --stack-name $1
+  aws --profile $AWS_PROFILE cloudformation describe-stacks --stack-name $1
 }
 
 # validate user input
@@ -13,7 +13,7 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-AWS_OUTPUT=$(aws --profile sideprojects cloudformation create-stack --stack-name $LAMBDA_INFRASTRUCTURE_STACK_NAME_PREFIX-$1 --template-body file://../infrastructure/lambda-infrastructure/stack.yml --parameters  ParameterKey=KeyPairName --parameters file://../infrastructure/lambda-infrastructure/parameters-$1.json --region ap-southeast-2 --capabilities CAPABILITY_NAMED_IAM)
+AWS_OUTPUT=$(aws --profile $AWS_PROFILE cloudformation create-stack --stack-name $LAMBDA_INFRASTRUCTURE_STACK_NAME_PREFIX-$1 --template-body file://../infrastructure/lambda-infrastructure/stack.yml --parameters  ParameterKey=KeyPairName --parameters file://../infrastructure/lambda-infrastructure/parameters-$1.json --region ap-southeast-2 --capabilities CAPABILITY_NAMED_IAM)
 STACK_ARN=$(echo $AWS_OUTPUT | jq ".StackId")
 CLEAN_ARN=$(echo $STACK_ARN | sed 's/\"//g')
 STACK_STATUS=$(stackStatus $CLEAN_ARN | jq ".Stacks[0].StackStatus")

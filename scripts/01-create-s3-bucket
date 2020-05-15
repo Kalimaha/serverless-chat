@@ -8,4 +8,4 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-aws --profile sideprojects s3 mb s3://geobricks-serverless-chat-$1
+aws --profile $AWS_PROFILE s3 mb s3://geobricks-serverless-chat-$1
