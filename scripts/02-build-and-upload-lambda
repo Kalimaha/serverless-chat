@@ -9,4 +9,4 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-(cd ../functions/retrieve-potatoes/ && ./build_and_deploy $1)
+(cd ../functions/messages/create/ && ./build_and_deploy $1)
