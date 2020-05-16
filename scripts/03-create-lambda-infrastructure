@@ -17,8 +17,6 @@ AWS_OUTPUT=$(aws --profile $AWS_PROFILE cloudformation create-stack --stack-name
 STACK_ARN=$(echo $AWS_OUTPUT | jq ".StackId")
 CLEAN_ARN=$(echo $STACK_ARN | sed 's/\"//g')
 STACK_STATUS=$(stackStatus $CLEAN_ARN | jq ".Stacks[0].StackStatus")
-#CREATE_COMPLETE="\"CREATE_COMPLETE\""
-#ROLLBACK_COMPLETE="\"ROLLBACK_COMPLETE\""
 
 echo "STACK ARN........: $CLEAN_ARN"
 echo
