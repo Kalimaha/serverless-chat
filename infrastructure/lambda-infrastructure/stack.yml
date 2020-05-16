@@ -6,6 +6,102 @@ Parameters:
 
 Resources:
 
+  APIGateway:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: serverless-chat-gateway-test
+
+  APIGatewayRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: [ "sts:AssumeRole" ]
+            Effect: Allow
+            Principal:
+              Service: [ "apigateway.amazonaws.com" ]
+      Path: "/"
+      Policies:
+        - PolicyName: PermitLambdaAndLog
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [ "lambda:InvokeFunction" ]
+                Resource: [ "*" ]
+              - Effect: Allow
+                Action: [ "logs:*" ]
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Resource: "*"
+                Action: [ "dynamodb:*" ]
+
+  APIDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn: RetrievePotatoesREST
+    Properties:
+      RestApiId: !Ref APIGateway
+      StageName: serverless-chat-deployment-test
+
+  APIStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref APIDeployment
+      RestApiId: !Ref APIGateway
+      StageName: serverless-chat-stage-test
+
+  APIAccount:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt [ CloudWatchRole, Arn ]
+
+  RetrievePotatoesREST:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        Credentials: !GetAtt [ APIGatewayRole, Arn ]
+        IntegrationHttpMethod: GET
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        Type: AWS
+        PassthroughBehavior: WHEN_NO_MATCH
+        Uri:
+          !Join
+          - ""
+          - - "arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/"
+            - !GetAtt [ LambdaRetrievePotatoes, Arn ]
+            - "/invocations"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+      ResourceId: !GetAtt [ APIGateway, "RootResourceId" ]
+      RestApiId: !Ref APIGateway
+
+  CloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
   LambdaRetrievePotatoes:
     Type: AWS::Lambda::Function
     Properties:

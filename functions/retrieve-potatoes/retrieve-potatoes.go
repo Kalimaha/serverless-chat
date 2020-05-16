@@ -1,21 +1,23 @@
 package main
 
-import "github.com/aws/aws-lambda-go/lambda"
+import (
+	"encoding/json"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+)
 
-type Request struct {
-	RequestId float64 `json:"requestId"`
+type MyResponse struct {
+	ResponseId string
 }
 
-type Response struct {
-	ResponseId float64 `json:"responseId"`
-	Message    string  `json:"message"`
-}
+// Invoke it locally
+// aws --profile sideprojects lambda invoke --function-name RetrievePotatoes --payload '{"pathParameters": {"requestId": "42"}}' response.json
+func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	requestId	:= request.PathParameters["requestId"]
+	response 	:= MyResponse{ResponseId: requestId}
+	body, _ 	:= json.Marshal(response)
 
-func Handler(request Request) (Response, error) {
-	return Response {
-		ResponseId: request.RequestId,
-		Message:    "Hallo, world!",
-	}, nil
+	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 200}, nil
 }
 
 func main() {

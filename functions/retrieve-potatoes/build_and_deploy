@@ -25,4 +25,4 @@ zip $FUNCTION_NAME.zip $FUNCTION_NAME
 rm $FUNCTION_NAME
 
 # upload zip to S3
-aws --profile sideprojects s3 cp $FUNCTION_NAME.zip s3://$BUCKET_NAME_PREFIX-$1/
+aws --profile $AWS_PROFILE s3 cp $FUNCTION_NAME.zip s3://$BUCKET_NAME_PREFIX-$1/
