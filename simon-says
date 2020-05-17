@@ -12,6 +12,8 @@ fi
 # constants
 CREATE_STACK=create-stack
 DELETE_STACK=delete-stack
+UPDATE_STACK=update-stack
+UPDATE_FUNCTION=update-function
 
 if [[ $1 == $CREATE_STACK ]]; then            # create stack
   (cd ./scripts && \
@@ -20,6 +22,10 @@ if [[ $1 == $CREATE_STACK ]]; then            # create stack
    ./03-create-lambda-infrastructure $2)
 elif [[ $1 == $DELETE_STACK ]]; then          # delete stack
   (cd ./scripts &&./99-delete-stack $2)
+elif [[ $1 == $UPDATE_STACK ]]; then          # update stack
+  (cd ./scripts &&./04-update-lambda-infrastructure $2)
+elif [[ $1 == $UPDATE_FUNCTION ]]; then
+  (cd ./functions/messages/create && ./build_and_update $2)
 else                                          # error message
   echo
   echo "Unknown command '$1'. Valid commands: [create-stack|delete-stack] "

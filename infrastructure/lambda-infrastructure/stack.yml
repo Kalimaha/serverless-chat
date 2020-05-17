@@ -3,113 +3,38 @@ Parameters:
     Type: String
   LambdaRoleName:
     Type: String
+  DBName:
+    Type: String
 
 Resources:
 
-  APIGateway:
-    Type: "AWS::ApiGateway::RestApi"
+  ServerlessChatDB:
+    Type: AWS::DynamoDB::Table
     Properties:
-      Name: serverless-chat-gateway-test
+      TableName: !Ref DBName
+      AttributeDefinitions:
+        - AttributeName: MessageId
+          AttributeType: S
+        - AttributeName: CreatedAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: MessageId
+          KeyType: HASH
+        - AttributeName: CreatedAt
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
-  APIGatewayRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Action: [ "sts:AssumeRole" ]
-            Effect: Allow
-            Principal:
-              Service: [ "apigateway.amazonaws.com" ]
-      Path: "/"
-      Policies:
-        - PolicyName: PermitLambdaAndLog
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: [ "lambda:InvokeFunction" ]
-                Resource: [ "*" ]
-              - Effect: Allow
-                Action: [ "logs:*" ]
-                Resource: "arn:aws:logs:*:*:*"
-              - Effect: Allow
-                Resource: "*"
-                Action: [ "dynamodb:*" ]
-
-  APIDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn: RetrievePotatoesREST
-    Properties:
-      RestApiId: !Ref APIGateway
-      StageName: serverless-chat-deployment-test
-
-  APIStage:
-    Type: "AWS::ApiGateway::Stage"
-    Properties:
-      DeploymentId: !Ref APIDeployment
-      RestApiId: !Ref APIGateway
-      StageName: serverless-chat-stage-test
-
-  APIAccount:
-    Type: "AWS::ApiGateway::Account"
-    Properties:
-      CloudWatchRoleArn: !GetAtt [ CloudWatchRole, Arn ]
-
-  RetrievePotatoesREST:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      AuthorizationType: NONE
-      HttpMethod: GET
-      Integration:
-        Credentials: !GetAtt [ APIGatewayRole, Arn ]
-        IntegrationHttpMethod: GET
-        IntegrationResponses:
-          - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
-        Type: AWS
-        PassthroughBehavior: WHEN_NO_MATCH
-        Uri:
-          !Join
-          - ""
-          - - "arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/"
-            - !GetAtt [ LambdaRetrievePotatoes, Arn ]
-            - "/invocations"
-      MethodResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: false
-            method.response.header.Access-Control-Allow-Methods: false
-            method.response.header.Access-Control-Allow-Origin: false
-      ResourceId: !GetAtt [ APIGateway, "RootResourceId" ]
-      RestApiId: !Ref APIGateway
-
-  CloudWatchRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - "apigateway.amazonaws.com"
-            Action: "sts:AssumeRole"
-      Path: "/"
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
-
-  LambdaRetrievePotatoes:
+  FunctionCreateMessage:
     Type: AWS::Lambda::Function
     Properties:
+      Description: "Create a chat message in the DB."
       Code:
         S3Bucket: !Ref S3BucketName
-        S3Key: "retrieve-potatoes.zip"
-      FunctionName: "RetrievePotatoes"
-      Handler: "retrieve-potatoes"
+        S3Key: "create-message.zip"
+      FunctionName: "CreateMessage"
+      Handler: "create-message"
       MemorySize: 128
       Role: !GetAtt [ LambdaFunctionRole, Arn ]
       Runtime: "go1.x"

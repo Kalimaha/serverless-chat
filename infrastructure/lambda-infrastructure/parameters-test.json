@@ -6,5 +6,9 @@
   {
     "ParameterKey": "LambdaRoleName",
     "ParameterValue": "lambda-role-test"
+  },
+  {
+    "ParameterKey": "DBName",
+    "ParameterValue": "geobricks-serverless-chat-db-test"
   }
 ]
