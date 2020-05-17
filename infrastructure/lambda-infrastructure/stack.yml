@@ -13,11 +13,15 @@ Resources:
     Properties:
       TableName: !Ref DBName
       AttributeDefinitions:
-        - AttributeName: MessageID
+        - AttributeName: MessageId
+          AttributeType: S
+        - AttributeName: CreatedAt
           AttributeType: S
       KeySchema:
-        - AttributeName: MessageID
+        - AttributeName: MessageId
           KeyType: HASH
+        - AttributeName: CreatedAt
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5

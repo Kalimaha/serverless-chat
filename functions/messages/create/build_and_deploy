@@ -12,20 +12,17 @@ fi
 # install dependencies
 go get -d ./...
 
-# constant(s)
-FUNCTION_NAME="create-message"
-
 # compile Go
-GOARCH=amd64 GOOS=linux go build -o $FUNCTION_NAME
+GOARCH=amd64 GOOS=linux go build -o $FUNCTION_CREATE_MESSAGE_NAME
 
 # change permissions
-chmod u+x $FUNCTION_NAME
+chmod u+x $FUNCTION_CREATE_MESSAGE_NAME
 
 # zip executable
-zip $FUNCTION_NAME.zip $FUNCTION_NAME
+zip $FUNCTION_CREATE_MESSAGE_NAME.zip $FUNCTION_CREATE_MESSAGE_NAME
 
 # remove executable
-rm $FUNCTION_NAME
+rm $FUNCTION_CREATE_MESSAGE_NAME
 
 # upload zip to S3
-aws --profile $AWS_PROFILE s3 cp $FUNCTION_NAME.zip s3://$BUCKET_NAME_PREFIX-$1/
+aws --profile $AWS_PROFILE s3 cp $FUNCTION_CREATE_MESSAGE_NAME.zip s3://$BUCKET_NAME_PREFIX-$1/
