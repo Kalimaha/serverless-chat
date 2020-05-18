@@ -9,28 +9,31 @@ source ./config/settings
 #  exit 1
 #fi
 
-# constants
-CREATE_STACK=create-stack
-DELETE_STACK=delete-stack
-UPDATE_STACK=update-stack
-UPDATE_FUNCTION=update-function
-
-if [[ $1 == $CREATE_STACK ]]; then            # create stack
+# create stack
+if [[ $1 == $CREATE_STACK ]]; then
   (cd ./scripts && \
    ./01-create-s3-bucket $2 && \
    ./02-build-and-upload-lambda $2 && \
    ./03-create-lambda-infrastructure $2)
-elif [[ $1 == $DELETE_STACK ]]; then          # delete stack
+
+# delete stack
+elif [[ $1 == $DELETE_STACK ]]; then
   (cd ./scripts &&./99-delete-stack $2)
-elif [[ $1 == $UPDATE_STACK ]]; then          # update stack
+
+# update stack
+elif [[ $1 == $UPDATE_STACK ]]; then
   (cd ./scripts &&./04-update-lambda-infrastructure $2)
+
+# update functions
 elif [[ $1 == $UPDATE_FUNCTION ]]; then
-  if [[ $3 == "create-message" ]]; then
+  if [[ $3 == $FUNCTION_CREATE_MESSAGE_NAME ]]; then
     (cd ./functions/messages/create && ./build_and_update $2)
-  elif [[ $3 == "register-user" ]]; then
+  elif [[ $3 == $FUNCTION_REGISTER_USER_NAME ]]; then
     (cd ./functions/users/register && ./build_and_update $2)
   fi
-else                                          # error message
+
+# error message otherwise
+else
   echo
   echo "Unknown command '$1'. Valid commands: [create-stack|delete-stack] "
   echo

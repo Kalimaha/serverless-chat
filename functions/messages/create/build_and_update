@@ -25,13 +25,13 @@ zip $FUNCTION_CREATE_MESSAGE_NAME.zip $FUNCTION_CREATE_MESSAGE_NAME
 aws --profile $AWS_PROFILE s3 cp $FUNCTION_CREATE_MESSAGE_NAME.zip s3://$BUCKET_NAME_PREFIX-$1/
 
 # update lambda function
-aws --profile $AWS_PROFILE lambda update-function-code --function-name CreateMessage --s3-bucket $BUCKET_NAME_PREFIX-$1 --s3-key $FUNCTION_CREATE_MESSAGE_NAME.zip --publish
+aws --profile $AWS_PROFILE lambda update-function-code --function-name $FUNCTION_CREATE_MESSAGE_NAME --s3-bucket $BUCKET_NAME_PREFIX-$1 --s3-key $FUNCTION_CREATE_MESSAGE_NAME.zip --publish
 
 # cleanup
 rm $FUNCTION_CREATE_MESSAGE_NAME $FUNCTION_CREATE_MESSAGE_NAME.zip
 
 # test call
-aws --profile sideprojects lambda invoke --function-name CreateMessage response.json
+aws --profile sideprojects lambda invoke --function-name $FUNCTION_CREATE_MESSAGE_NAME response.json
 
 # print response
 echo
