@@ -13,15 +13,11 @@ Resources:
     Properties:
       TableName: !Ref DBName
       AttributeDefinitions:
-        - AttributeName: MessageId
-          AttributeType: S
-        - AttributeName: CreatedAt
+        - AttributeName: PrimaryKey
           AttributeType: S
       KeySchema:
-        - AttributeName: MessageId
+        - AttributeName: PrimaryKey
           KeyType: HASH
-        - AttributeName: CreatedAt
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -35,6 +31,19 @@ Resources:
         S3Key: "create-message.zip"
       FunctionName: "CreateMessage"
       Handler: "create-message"
+      MemorySize: 128
+      Role: !GetAtt [ LambdaFunctionRole, Arn ]
+      Runtime: "go1.x"
+
+  FunctionRegisterUser:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: "Register a chat user in the DB."
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: "register-user.zip"
+      FunctionName: "RegisterUser"
+      Handler: "register-user"
       MemorySize: 128
       Role: !GetAtt [ LambdaFunctionRole, Arn ]
       Runtime: "go1.x"

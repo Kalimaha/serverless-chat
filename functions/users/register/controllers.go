@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-func CreateMessage(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	message := buildMessage()
+func RegisterUser(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	message := buildUser()
 
-	_, err := SaveMessage(dbSession(), message)
+	_, err := UpdateUser(dbSession(), message)
 	if err != nil {
 		returnFormattedError(err)
 	}
@@ -36,11 +36,10 @@ func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 422}, nil
 }
 
-func buildMessage() (message Message) {
-	return Message{
+func buildUser() (user User) {
+	return User{
 		PrimaryKey:	guuid.New().String(),
-		ChatId:    	"42",
+		Active:    	true,
 		CreatedAt: 	time.Now().Format(time.RFC3339),
-		Text:      	"Hallo, world!",
 	}
 }

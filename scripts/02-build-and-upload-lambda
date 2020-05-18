@@ -10,3 +10,4 @@ if [[ $# -ne 1 ]]; then
 fi
 
 (cd ../functions/messages/create/ && ./build_and_deploy $1)
+(cd ../functions/users/register/ && ./build_and_deploy $1)

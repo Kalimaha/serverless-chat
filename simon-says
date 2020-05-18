@@ -2,12 +2,12 @@
 source ./config/settings
 
 # validate user input
-if [[ $# -ne 2 ]]; then
-  echo
-  echo "Wrong number of parameters. Usage: ./simon-says [create-stack|delete-stack] [test|prod]"
-  echo
-  exit 1
-fi
+#if [[ $# -ne 2 ]]; then
+#  echo
+#  echo "Wrong number of parameters. Usage: ./simon-says [create-stack|delete-stack] [test|prod]"
+#  echo
+#  exit 1
+#fi
 
 # constants
 CREATE_STACK=create-stack
@@ -25,7 +25,11 @@ elif [[ $1 == $DELETE_STACK ]]; then          # delete stack
 elif [[ $1 == $UPDATE_STACK ]]; then          # update stack
   (cd ./scripts &&./04-update-lambda-infrastructure $2)
 elif [[ $1 == $UPDATE_FUNCTION ]]; then
-  (cd ./functions/messages/create && ./build_and_update $2)
+  if [[ $3 == "create-message" ]]; then
+    (cd ./functions/messages/create && ./build_and_update $2)
+  elif [[ $3 == "register-user" ]]; then
+    (cd ./functions/users/register && ./build_and_update $2)
+  fi
 else                                          # error message
   echo
   echo "Unknown command '$1'. Valid commands: [create-stack|delete-stack] "
