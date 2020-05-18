@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	guuid "github.com/google/uuid"
 	"time"
 )
@@ -10,7 +13,7 @@ import (
 func CreateMessage(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	message := buildMessage()
 
-	_, err := SaveMessage(message)
+	_, err := SaveMessage(dbSession(), message)
 	if err != nil {
 		returnFormattedError(err)
 	}
@@ -21,6 +24,12 @@ func CreateMessage(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 200}, nil
+}
+
+func dbSession() (dbSession dynamodbiface.DynamoDBAPI) {
+	sess := session.Must(session.NewSession())
+
+	return dynamodb.New(sess)
 }
 
 func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
