@@ -19,13 +19,20 @@ aws s3 ls --profile $AWS_PROFILE
 
 ## Manage the infrastructure
 
-The AWS infrastructure can be managed through the `simon-says` script that accepts two parameters:
+The AWS infrastructure can be managed through the `simon-says` script.
 
-* **command**: `create-stack`|`update-stack`|`delete-stack`
-* **environment**: `test`|`prod`
+### Create stack
 
-A valid example is the following:
+`./simon-says create-stack [test|prod]`
 
-```
-./simon-says create-stack test
-```
+### Update stack
+
+`./simon-says update-stack [test|prod]`
+
+### Delete stack
+
+`./simon-says delete-stack [test|prod]`
+
+### Update Lambda function
+
+`./simon-says update-function [test|prod] [CreateMessage|RegisterUser]`

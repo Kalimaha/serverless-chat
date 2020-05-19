@@ -1,7 +1,8 @@
 package main
 
 type User struct {
-	PrimaryKey	string
-	Active		bool
-	CreatedAt   string
+	PrimaryKey		string
+	SecondaryKey	string
+	Data			bool
+	CreatedAt   	string
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -23,7 +24,7 @@ func RegisterUser(request events.APIGatewayProxyRequest) (events.APIGatewayProxy
 		returnFormattedError(err)
 	}
 
-	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 200}, nil
+	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 201}, nil
 }
 
 func dbSession() (dbSession dynamodbiface.DynamoDBAPI) {
@@ -38,8 +39,8 @@ func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
 
 func buildUser() (user User) {
 	return User{
-		PrimaryKey:	guuid.New().String(),
-		Active:    	true,
+		PrimaryKey:	fmt.Sprintf("USER_%s", guuid.New().String()),
+		Data:    	true,
 		CreatedAt: 	time.Now().Format(time.RFC3339),
 	}
 }

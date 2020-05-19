@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -23,7 +24,7 @@ func CreateMessage(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 		returnFormattedError(err)
 	}
 
-	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 200}, nil
+	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 201}, nil
 }
 
 func dbSession() (dbSession dynamodbiface.DynamoDBAPI) {
@@ -38,9 +39,9 @@ func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
 
 func buildMessage() (message Message) {
 	return Message{
-		PrimaryKey:	guuid.New().String(),
-		ChatId:    	"42",
-		CreatedAt: 	time.Now().Format(time.RFC3339),
-		Text:      	"Hallo, world!",
+		PrimaryKey:		fmt.Sprintf("MESSAGE_%s", guuid.New().String()),
+		SecondaryKey:	fmt.Sprintf("CHAT_%s", "42"),
+		CreatedAt: 		time.Now().Format(time.RFC3339),
+		Data:      		"Hallo, world!",
 	}
 }
