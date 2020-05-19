@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -e
+source ../config/settings
+
+# validate user input
+if [[ $# -ne 2 ]]; then
+  echo
+  echo "Wrong number of parameters. Usage: ./build_and_update [test|prod] [CreateMessage|RegisterUser]"
+  echo
+  exit 1
+fi
+
+# change directory according to the function
+if [[ $2 == $FUNCTION_CREATE_MESSAGE_NAME ]]; then
+  DIR="../functions/messages/create/"
+elif [[ $2 == $FUNCTION_REGISTER_USER_NAME ]]; then
+  DIR="../functions/users/register/"
+fi
+cd $DIR
+
+# install dependencies
+go get -d ./...
+
+# compile Go
+GOARCH=amd64 GOOS=linux go build -o $2
+
+# change permissions
+chmod u+x $2
+
+# zip executable
+zip $2.zip $2
+
+# upload zip to S3 - it's not required but at least everything is consistent
+aws --profile $AWS_PROFILE s3 cp $2.zip s3://$BUCKET_NAME_PREFIX-$1/
+
+# update lambda function
+aws --profile $AWS_PROFILE lambda update-function-code --function-name $2 --s3-bucket $BUCKET_NAME_PREFIX-$1 --s3-key $2.zip --publish
+
+# cleanup
+rm $2
+rm $2.zip
+
+# test call
+aws --profile sideprojects lambda invoke --function-name $2 response.json
+
+# print response
+echo
+cat response.json
+rm response.json
+echo

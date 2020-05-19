@@ -10,7 +10,7 @@ function createLambdaFunctions() {
 }
 
 # validate user input
-if [[ $# -ne 2 ]]; then
+if [[ $# -lt 2 ]]; then
   echo
   echo "Wrong number of parameters. Usage: ./simon-says [create-stack|delete-stack] [test|prod]"
   echo
@@ -34,11 +34,7 @@ elif [[ $1 == $UPDATE_STACK ]]; then
 
 # update functions
 elif [[ $1 == $UPDATE_FUNCTION ]]; then
-  if [[ $3 == $FUNCTION_CREATE_MESSAGE_NAME ]]; then
-    (cd ./functions/messages/create && ./build_and_update $2)
-  elif [[ $3 == $FUNCTION_REGISTER_USER_NAME ]]; then
-    (cd ./functions/users/register && ./build_and_update $2)
-  fi
+  (cd ./scripts &&./05-update-lambda-function $2 $3)
 
 # error message otherwise
 else
