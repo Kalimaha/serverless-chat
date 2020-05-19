@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 source ./config/settings
 
+function createLambdaFunctions() {
+  ENV=$1
+  for FUNCTION_NAME in $FUNCTION_CREATE_MESSAGE_NAME $FUNCTION_REGISTER_USER_NAME
+  do
+    ./02-build-and-upload-lambda $ENV $FUNCTION_NAME
+  done
+}
+
 # validate user input
-#if [[ $# -ne 2 ]]; then
-#  echo
-#  echo "Wrong number of parameters. Usage: ./simon-says [create-stack|delete-stack] [test|prod]"
-#  echo
-#  exit 1
-#fi
+if [[ $# -ne 2 ]]; then
+  echo
+  echo "Wrong number of parameters. Usage: ./simon-says [create-stack|delete-stack] [test|prod]"
+  echo
+  exit 1
+fi
 
 # create stack
 if [[ $1 == $CREATE_STACK ]]; then
   (cd ./scripts && \
    ./01-create-s3-bucket $2 && \
-   ./02-build-and-upload-lambda $2 && \
+   createLambdaFunctions $2 && \
    ./03-create-lambda-infrastructure $2)
 
 # delete stack
