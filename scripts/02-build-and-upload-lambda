@@ -14,6 +14,8 @@ if [[ $2 == "$FUNCTION_CREATE_MESSAGE_NAME" ]]; then
   DIR="../functions/messages/create/"
 elif [[ $2 == "$FUNCTION_REGISTER_USER_NAME" ]]; then
   DIR="../functions/users/register/"
+elif [[ $2 == "$FUNCTION_RETRIEVE_MESSAGES_NAME" ]]; then
+  DIR="../functions/messages/retrieve/"
 fi
 cd $DIR
 
