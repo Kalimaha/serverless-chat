@@ -39,6 +39,19 @@ Resources:
       Role: !GetAtt [ LambdaFunctionRole, Arn ]
       Runtime: "go1.x"
 
+  FunctionRetrieveMessages:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: "Retrieve all messages from the DB."
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: "RetrieveMessages.zip"
+      FunctionName: "RetrieveMessages"
+      Handler: "RetrieveMessages"
+      MemorySize: 128
+      Role: !GetAtt [ LambdaFunctionRole, Arn ]
+      Runtime: "go1.x"
+
   FunctionRegisterUser:
     Type: AWS::Lambda::Function
     Properties:
