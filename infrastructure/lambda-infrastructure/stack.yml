@@ -15,9 +15,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: PrimaryKey
           AttributeType: S
+        - AttributeName: SecondaryKey
+          AttributeType: S
       KeySchema:
         - AttributeName: PrimaryKey
           KeyType: HASH
+        - AttributeName: SecondaryKey
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5

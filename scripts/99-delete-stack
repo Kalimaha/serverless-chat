@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -e
-source ../config/settings
 
 stackStatus() {
-  aws --profile $AWS_PROFILE cloudformation describe-stacks --stack-name $1
+  aws --profile "$AWS_PROFILE" cloudformation describe-stacks --stack-name "$1"
 }
 
 # validate user input
@@ -15,9 +14,9 @@ if [[ $# -ne 1 ]]; then
 fi
 
 # empty and delete bucket(s)
-aws --profile $AWS_PROFILE s3 rb s3://$BUCKET_NAME_PREFIX-$1 --force
+aws --profile "$AWS_PROFILE" s3 rb s3://"$BUCKET_NAME_PREFIX"-"$1" --force
 
 # remove stack
-aws --profile $AWS_PROFILE \
+aws --profile "$AWS_PROFILE" \
     cloudformation delete-stack \
-    --stack-name $LAMBDA_INFRASTRUCTURE_STACK_NAME_PREFIX-$1
+    --stack-name "$LAMBDA_INFRASTRUCTURE_STACK_NAME_PREFIX"-"$1"

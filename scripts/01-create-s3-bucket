@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-source ../config/settings
 
 # validate user input
 if [[ $# -ne 1 ]]; then
@@ -10,4 +9,4 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-aws --profile $AWS_PROFILE s3 mb s3://geobricks-serverless-chat-$1
+aws --profile "$AWS_PROFILE" s3 mb s3://geobricks-serverless-chat-"$1"
