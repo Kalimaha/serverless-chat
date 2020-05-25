@@ -7,19 +7,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
-	guuid "github.com/google/uuid"
 	"time"
 )
 
-func RegisterUser(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	message := buildUser()
+func RegisterUser(request events.APIGatewayWebsocketProxyRequest) (events.APIGatewayProxyResponse, error) {
+	user := buildUser(request.RequestContext.ConnectionID, request.RequestContext.EventType)
 
-	_, err := UpdateUser(dbSession(), message)
+	_, err := UpdateUser(dbSession(), user)
 	if err != nil {
 		returnFormattedError(err)
 	}
 
-	body, err := json.Marshal(message)
+	body, err := json.Marshal(user)
 	if err != nil {
 		returnFormattedError(err)
 	}
@@ -37,10 +36,10 @@ func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 422}, nil
 }
 
-func buildUser() (user User) {
+func buildUser(connectionId string, eventType string) (user User) {
 	return User{
-		PrimaryKey:	fmt.Sprintf("USER_%s", guuid.New().String()),
-		Data:    	true,
+		PrimaryKey:	fmt.Sprintf("USER_%s", connectionId),
+		Data:    	eventType == "CONNECT",
 		CreatedAt: 	time.Now().Format(time.RFC3339),
 	}
 }
