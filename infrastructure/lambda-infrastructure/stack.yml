@@ -15,13 +15,9 @@ Resources:
       AttributeDefinitions:
         - AttributeName: PrimaryKey
           AttributeType: S
-        - AttributeName: SecondaryKey
-          AttributeType: S
       KeySchema:
         - AttributeName: PrimaryKey
           KeyType: HASH
-        - AttributeName: SecondaryKey
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -65,6 +61,149 @@ Resources:
       Role: !GetAtt [ LambdaFunctionRole, Arn ]
       Runtime: "go1.x"
 
+  WebsocketApiGateway:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: WebsocketApiGateway
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.message"
+
+  RouteForConnection:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: RouteForConnection
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref ConnectionIntegration
+
+  RouteForDisconnection:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: RouteForDisconnection
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DisconnectionIntegration
+
+  RouteForMessaging:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      RouteKey: $default
+      AuthorizationType: NONE
+      OperationName: RouteForMessaging
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref MessagingIntegration
+
+  ConnectionPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebsocketApiGateway
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref FunctionRegisterUser
+      Principal: apigateway.amazonaws.com
+
+  ConnectionIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      Description: Connection Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${FunctionRegisterUser.Arn}/invocations
+
+  DisconnectionIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      Description: Disconnection Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${FunctionRegisterUser.Arn}/invocations
+
+  MessagingIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+      Description: Messaging Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${FunctionRegisterUser.Arn}/invocations
+
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - RouteForConnection
+      - RouteForDisconnection
+      - RouteForMessaging
+    Properties:
+      ApiId: !Ref WebsocketApiGateway
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Prod
+      Description: Prod Stage
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref WebsocketApiGateway
+
+  WebsocketApiGatewayAccount:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt [ WebsocketApiGatewayCloudWatchRole, Arn ]
+
+  WebsocketApiGatewayCloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
+  WebsocketApiGatewayRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: apigateway.amazonaws.com
+            Effect: Allow
+      Policies:
+        - PolicyName: Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource: "arn:aws:logs:*:*:*"
+                Action:
+                  - "logs:*"
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "lambda:InvokeFunction"
+
   LambdaFunctionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -96,3 +235,8 @@ Resources:
                 Resource: "*"
                 Action:
                   - "s3:*"
+
+Outputs:
+  WebsocketApiGatewayARN:
+    Description: The ARN required to connect to the gateway
+    Value: !Ref WebsocketApiGateway
