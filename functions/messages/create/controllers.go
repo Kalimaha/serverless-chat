@@ -11,8 +11,15 @@ import (
 	"time"
 )
 
-func CreateMessage(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	message := buildMessage()
+type LambdaRequest struct {
+	Data string `json:"data"`
+}
+
+func CreateMessage(request events.APIGatewayWebsocketProxyRequest) (events.APIGatewayProxyResponse, error) {
+	lambdaRequest := LambdaRequest{}
+	json.Unmarshal([]byte(request.Body), &lambdaRequest)
+
+	message := buildMessage(lambdaRequest.Data)
 
 	_, err := SaveMessage(dbSession(), message)
 	if err != nil {
@@ -37,11 +44,11 @@ func returnFormattedError(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 422}, nil
 }
 
-func buildMessage() (message Message) {
+func buildMessage(data string) (message Message) {
 	return Message{
 		PrimaryKey:		fmt.Sprintf("MESSAGE_%s", guuid.New().String()),
 		SecondaryKey:	fmt.Sprintf("CHAT_%s", "42"),
 		CreatedAt: 		time.Now().Format(time.RFC3339),
-		Data:      		"Hallo, world!",
+		Data:      		data,
 	}
 }

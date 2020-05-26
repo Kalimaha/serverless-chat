@@ -30,10 +30,14 @@ done
 
 echo
 echo "STACK CREATION COMPLETED WITH STATUS: $STACK_STATUS"
-
 echo
+
 WEBSOCKET_ARN=$(stackStatus "$CLEAN_ARN" | jq ".Stacks[0].Outputs[0].OutputValue")
 CLEAN_WEBSOCKET_ARN=$(echo "$WEBSOCKET_ARN" | sed 's/\"//g')
 echo "Test your connection with:"
-echo "   wscat -c wss://$CLEAN_WEBSOCKET_ARN.execute-api.ap-southeast-2.amazonaws.com/Prod"
+echo
+echo "   wscat -c wss://$CLEAN_WEBSOCKET_ARN.execute-api.ap-southeast-2.amazonaws.com/test"
+echo "   Connected (press CTRL+C to quit)"
+echo
+echo '   > { "action": "sendmessage", "data": "Hallo, world!" }'
 echo

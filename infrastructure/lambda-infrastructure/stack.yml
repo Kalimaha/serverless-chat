@@ -66,7 +66,7 @@ Resources:
     Properties:
       Name: WebsocketApiGateway
       ProtocolType: WEBSOCKET
-      RouteSelectionExpression: "$request.body.message"
+      RouteSelectionExpression: "$request.body.action"
 
   RouteForConnection:
     Type: AWS::ApiGatewayV2::Route
@@ -96,7 +96,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref WebsocketApiGateway
-      RouteKey: $default
+      RouteKey: sendmessage
       AuthorizationType: NONE
       OperationName: RouteForMessaging
       Target: !Join
@@ -111,6 +111,15 @@ Resources:
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref FunctionRegisterUser
+      Principal: apigateway.amazonaws.com
+
+  MessagingPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - WebsocketApiGateway
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref FunctionCreateMessage
       Principal: apigateway.amazonaws.com
 
   ConnectionIntegration:
@@ -141,7 +150,14 @@ Resources:
       IntegrationType: AWS_PROXY
       IntegrationUri:
         Fn::Sub:
-          arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${FunctionRegisterUser.Arn}/invocations
+          arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${FunctionCreateMessage.Arn}/invocations
+
+  MessagingResponse:
+    Type: AWS::ApiGatewayV2::RouteResponse
+    Properties:
+      RouteId: !Ref RouteForMessaging
+      ApiId: !Ref WebsocketApiGateway
+      RouteResponseKey: $default
 
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
@@ -155,8 +171,8 @@ Resources:
   Stage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
-      StageName: Prod
-      Description: Prod Stage
+      StageName: test
+      Description: Test Stage
       DeploymentId: !Ref Deployment
       ApiId: !Ref WebsocketApiGateway
 
@@ -235,6 +251,11 @@ Resources:
                 Resource: "*"
                 Action:
                   - "s3:*"
+              - Effect: Allow
+                Action:
+                  - 'execute-api:ManageConnections'
+                Resource:
+                  - !Sub 'arn:aws:execute-api:ap-southeast-2:${AWS::AccountId}:${WebsocketApiGateway}/*'
 
 Outputs:
   WebsocketApiGatewayARN:
