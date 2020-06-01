@@ -256,6 +256,10 @@ Resources:
                   - 'execute-api:ManageConnections'
                 Resource:
                   - !Sub 'arn:aws:execute-api:ap-southeast-2:${AWS::AccountId}:${WebsocketApiGateway}/*'
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - "execute-api:*"
 
 Outputs:
   WebsocketApiGatewayARN:
